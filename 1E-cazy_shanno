@@ -1,0 +1,20 @@
+import re, os 
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+plt.rcParams['font.family'] = "Arial"
+
+data = pd.read_csv(data_path, sep="\t", index_col=0)
+def plot(data):
+    a_index = [i for i in data.index if i.startswith("a")]
+    b_index = [i for i in data.index if i.startswith("b")]
+    a_group = data.loc[data.index.isin(a_index)]["shannon"].values
+    b_group = data.loc[data.index.isin(b_index)]["shannon"].values
+    sns.boxplot(data=[a_group, b_group])
+    plt.xticks(ticks=[0, 1], labels=["a_group", "b_group"], fontsize=14)
+    plt.xticks(fontsize=14)
+    plt.ylabel("Shannon diversity index", fontsize=16)
+    plt.show()
+
+plot(data)
