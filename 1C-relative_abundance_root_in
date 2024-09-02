@@ -1,0 +1,58 @@
+
+import re, os
+import numpy as np
+import pandas  as pd
+from scipy import stats
+import matplotlib.pyplot as plt
+import seaborn as sns
+plt.rcParams['font.family'] = "Arial"
+
+data = pd.read_csv(p, sep=",")
+print(data.shape)
+data.head(3)
+
+columns = ["Unnamed: 0"] + sorted(data.columns.tolist()[1:])
+data = data[columns]
+data.set_index("Unnamed: 0", inplace=True)
+data.head(3)
+data = data.loc[data.mean(1).sort_values(ascending=False).index]
+data_top15 = data.loc[data.index[:14]]
+data_other = data.loc[data.index[14:]].sum()
+data_top15.loc["others"] = data_other
+data_top15.head(3)
+data_top15.shape
+
+weight_counts = {}
+for i in data_top15.index:
+    weight_counts[i.split("|")[-1]] = data_top15.loc[i].values
+
+fig, ax = plt.subplots(1,1,figsize=(20, 12))
+# species = tuple(data_15.columns[:-1].tolist())
+color_list = [
+    "gray", "#C1CDC1", "#7A378B", "#B452CD", "#000080",
+    "#1E90FF", "#87CEFA", "#008B45", "#00CD00", "#C0FF3E",
+    "#FFFF00", "#FFA500", "#FFC0CB", "#FF1493", "#FFFACD"
+]
+
+width = 0.9
+bottom = np.zeros(9)
+n = 0
+
+for boolean, weight_count in weight_counts.items():
+#     ax.bar(species, weight_count, width, label=boolean, bottom=bottom, color=color_list[n])
+    ax.bar(np.arange(9), weight_count, width, label=boolean, bottom=bottom, color=color_list[n], alpha=0.8)
+    bottom = bottom + weight_count
+    n += 1
+    
+ax.legend(loc=[1.05, 0.15], fontsize="larger", frameon=0, facecolor="inherit", prop={'size': 20})
+plt.xticks(np.arange(9), [i.split(".")[0] for i in data_top15.columns.tolist()], rotation=0, fontsize=23)
+plt.yticks(fontsize=24)
+plt.xlim(-0.6, 9.1-0.5)
+plt.ylim(0, 1)
+plt.ylabel("Composition on the species level", fontsize=28)
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+ax.spines["left"].set_visible(False)
+ax.spines["bottom"].set_visible(False)
+plt.show()
+# plt.savefig()
