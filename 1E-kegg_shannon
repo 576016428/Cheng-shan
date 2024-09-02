@@ -1,0 +1,32 @@
+import re, os 
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from tqdm import tqdm
+plt.rcParams['font.family'] = "Arial"
+
+data = pd.read_csv(data_path, sep=",", index_col=0)
+data.drop(["Unnamed: 9"], axis=1, inplace=True)
+data = data + 0.00000001
+
+# shannon: H = -ΣPi * log(Pi) 
+def shannon(data):
+    colnames = data.columns.tolist()
+    a_shanno, b_shanno = {}, {}
+    for c in tqdm(colnames):
+        S = 0
+        for i in data.index:
+            p = data.loc[i][c]
+            S += p * np.log(p)
+        if "a" in c:
+            a_shanno[c] = -S
+        else:
+            b_shanno[c] = -S
+    return a_shanno, b_shanno
+
+a_shanno, b_shanno = shannon(data)
+
+plt.figure(figsize=(8,6))
+sns.boxplot(data=[list(a_shanno.values()), list(b_shanno.values())])
+plt.show()
