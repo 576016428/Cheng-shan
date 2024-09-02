@@ -1,0 +1,24 @@
+import re, os 
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+plt.rcParams['font.family'] = "Arial"
+
+data = pd.read_csv(r"C:/Users/HUAWEI/Desktop/Cheng_shan/NMDS_CAZy/level1/NMDS_scores.txt", sep=" ", index_col=0)
+def plot(data):
+    fig, ax = plt.subplots(1,1,figsize=(8,6))
+    for i in data.index:
+        x, y = data.loc[i]["NMDS1"], data.loc[i]["NMDS2"]
+        if i.startswith("a"):
+            color = "black", marker = "s"
+        plt.scatter(x=x, y=y, color=color, marker=marker, s=50)
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+    plt.xlabel("NMDS1", fontsize=16)
+    plt.ylabel("NMDS2", fontsize=16)
+    plt.title("NMDS2 Plot", fontsize=18)
+    plt.show()
+    # plt.savefig()
+
+plot(data)
