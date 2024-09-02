@@ -1,0 +1,53 @@
+# 画置信椭圆
+def confidence_ellipse(x, y, ax, n_std=3.0, facecolor="none", **kwargs):
+    if x.size != y.size:
+        raise ValueError("x and y must be the same size")
+  
+    # 计算协方差矩阵
+    cov = np.cov(x, y)
+    pearson = cov[0, 1]/np.sqrt(cov[0, 0] * cov[1, 1])
+    ell_radius_x = np.sqrt(1 + pearson)
+    ell_radius_y = np.sqrt(1 - pearson)
+    scale_x = np.sqrt(cov[0, 0]) * n_std
+    mean_x = np.mean(x)
+    scale_y = np.sqrt(cov[1, 1]) * n_std
+    mean_y = np.mean(y)
+  
+    # 绘制椭圆  
+    ellipse = Ellipse((mean_x, mean_y), width=ell_radius_x * 2 * scale_x, height=ell_radius_y * 2 * scale_y,
+                      facecolor=facecolor, **kwargs)
+    ax.add_patch(ellipse)
+    return ax
+
+y = specie_abs_scaler["Group"].values
+# 绘制散点图和置信椭圆
+fig, ax = plt.subplots(1, 1, figsize=(6, 5))
+markers = ['o', '^', 's']  
+colors = ['tomato', 'darkgreen', 'royalblue']  
+labels_unique = np.unique(y)
+
+for i, label in enumerate(labels_unique):
+    idx = y == label
+    ax.scatter(plotData_pca[idx, 0], plotData_pca[idx, 1], 
+               marker=markers[i], color=colors[i], label=f"{label}", 
+               edgecolors="none", alpha=0.8, s=80)
+    confidence_ellipse(plotData_pca[idx, 0], plotData_pca[idx, 1], 
+                       ax, edgecolor=colors[i], facecolor="none", alpha=0.4, linestyle="--", linewidth=1.5)
+    
+ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3, frameon=True)
+plt.xlabel(f"PC1: {np.round(pca.explained_variance_ratio_[0], 2)}", fontsize=12)
+plt.ylabel(f"PC2: {np.round(pca.explained_variance_ratio_[1], 2)}", fontsize=12)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
+plt.grid(False)
+# 去掉上边框和右边框
+ax.spines['top'].set_visible(True)
+ax.spines['right'].set_visible(True)
+# 设置左边框和下边框的粗细
+ax.spines['left'].set_linewidth(1.5)
+ax.spines['bottom'].set_linewidth(1.5)
+ax.spines['top'].set_linewidth(1.5)
+ax.spines['right'].set_linewidth(1.5)
+plt.grid("darkgrid", alpha=0.3, linestyle="-.")
+plt.show()
+# plt.savefig("PCA.pdf", bbox_inches="tight")
